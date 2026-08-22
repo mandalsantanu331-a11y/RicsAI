@@ -22,40 +22,54 @@ IMAGE_SIZE = (224, 224)
 
 def predict_image(image: Image.Image):
 
-    # Convert to RGB
+    # Convert image to RGB
     image = image.convert("RGB")
 
-    # Resize exactly like training
+    # Resize to model input size
     image = image.resize(IMAGE_SIZE)
 
     # Convert image to NumPy array
-    # Keep pixel range 0-255 because the model
-    # already contains Rescaling(1.0 / 255)
-    image_array = np.array(image, dtype=np.float32)
+    # Keep pixel values in 0-255 range.
+    # The model already contains Rescaling(1/255).
+    image_array = np.array(
+        image,
+        dtype=np.float32
+    )
 
     # Add batch dimension
-    image_array = np.expand_dims(image_array, axis=0)
+    image_array = np.expand_dims(
+        image_array,
+        axis=0
+    )
 
-    # Predict
+    # Model prediction
     predictions = model.predict(
         image_array,
         verbose=0
     )[0]
 
     # Get predicted class
-    predicted_index = int(np.argmax(predictions))
+    predicted_index = int(
+        np.argmax(predictions)
+    )
 
-    disease = CLASS_NAMES[predicted_index]
+    prediction = CLASS_NAMES[predicted_index]
 
-    confidence = float(predictions[predicted_index])
+    # Convert confidence from 0-1 to percentage
+    confidence = float(
+        predictions[predicted_index] * 100
+    )
 
+    # Convert all probabilities to percentages
     probabilities = {
-        CLASS_NAMES[i]: float(predictions[i])
+        CLASS_NAMES[i]: float(
+            predictions[i] * 100
+        )
         for i in range(len(CLASS_NAMES))
     }
 
     return {
-        "disease": disease,
+        "prediction": prediction,
         "confidence": confidence,
         "probabilities": probabilities,
     }

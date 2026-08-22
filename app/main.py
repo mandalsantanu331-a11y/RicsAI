@@ -1,13 +1,15 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
-from PIL import Image
 from io import BytesIO
 
+from fastapi import FastAPI, File, UploadFile, HTTPException
+from PIL import Image, UnidentifiedImageError
+
 from app.predictor import predict_image
+from app.schemas.prediction import PredictionResponse
 
 
 app = FastAPI(
     title="Rice Disease Detection API",
-    description="CNN-based rice leaf disease classification API",
+    description="CNN-based rice disease classification API",
     version="1.0.0",
 )
 
@@ -28,36 +30,58 @@ def health_check():
     }
 
 
-@app.post("/predict")
+@app.post(
+    "/predict",
+    response_model=PredictionResponse
+)
 async def predict(file: UploadFile = File(...)):
 
-    # Validate content type
-    if not file.content_type or not file.content_type.startswith("image/"):
+    # Check file type
+    if not file.content_type:
         raise HTTPException(
             status_code=400,
-            detail="Please upload a valid image file.",
+            detail="File type is missing."
+        )
+
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(
+            status_code=400,
+            detail="Only image files are allowed."
         )
 
     try:
+
         # Read uploaded file
         contents = await file.read()
 
         # Open image
-        image = Image.open(BytesIO(contents))
+        image = Image.open(
+            BytesIO(contents)
+        )
 
         # Predict
         result = predict_image(image)
 
         return {
             "success": True,
-            "filename": file.filename,
-            "prediction": result["disease"],
-            "confidence": result["confidence"],
-            "probabilities": result["probabilities"],
+            "data": {
+                "filename": file.filename,
+                "prediction": result["prediction"],
+                "confidence": result["confidence"],
+                "probabilities": result["probabilities"],
+            }
         }
 
+    except UnidentifiedImageError:
+
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid or corrupted image."
+        )
+
     except Exception as e:
+
         raise HTTPException(
             status_code=500,
-            detail=f"Prediction failed: {str(e)}",
+            detail=f"Prediction failed: {str(e)}"
         )
