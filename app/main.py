@@ -3,15 +3,18 @@ from io import BytesIO
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from PIL import Image, UnidentifiedImageError
 
+from app.api.iot import router as iot_router
 from app.predictor import predict_image
 from app.schemas.prediction import PredictionResponse
 
 
 app = FastAPI(
     title="Rice Disease Detection API",
-    description="CNN-based rice disease classification API",
-    version="1.0.0",
+    description="AI + IoT rice disease detection and field monitoring API",
+    version="1.1.0",
 )
+
+app.include_router(iot_router)
 
 
 @app.get("/")
@@ -19,6 +22,7 @@ def root():
     return {
         "success": True,
         "message": "Rice Disease Detection API is running",
+        "features": ["AI disease prediction", "IoT field monitoring"],
     }
 
 
@@ -36,7 +40,6 @@ def health_check():
 )
 async def predict(file: UploadFile = File(...)):
 
-    # Check file type
     if not file.content_type:
         raise HTTPException(
             status_code=400,
@@ -50,16 +53,8 @@ async def predict(file: UploadFile = File(...)):
         )
 
     try:
-
-        # Read uploaded file
         contents = await file.read()
-
-        # Open image
-        image = Image.open(
-            BytesIO(contents)
-        )
-
-        # Predict
+        image = Image.open(BytesIO(contents))
         result = predict_image(image)
 
         return {
@@ -73,14 +68,12 @@ async def predict(file: UploadFile = File(...)):
         }
 
     except UnidentifiedImageError:
-
         raise HTTPException(
             status_code=400,
             detail="Invalid or corrupted image."
         )
 
     except Exception as e:
-
         raise HTTPException(
             status_code=500,
             detail=f"Prediction failed: {str(e)}"
