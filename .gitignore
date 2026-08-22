@@ -1,0 +1,116 @@
+# ==============================
+# Python
+# ==============================
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ==============================
+# Virtual Environment
+# ==============================
+
+venv/
+.venv/
+env/
+ENV/
+
+# ==============================
+# Environment Variables / Secrets
+# ==============================
+
+.env
+.env.*
+!.env.example
+
+# ==============================
+# IDE / Editors
+# ==============================
+
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ==============================
+# OS Files
+# ==============================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+
+# ==============================
+# Jupyter
+# ==============================
+
+.ipynb_checkpoints/
+
+# ==============================
+# Testing / Coverage
+# ==============================
+
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# ==============================
+# Logs
+# ==============================
+
+*.log
+logs/
+
+# ==============================
+# Temporary Files
+# ==============================
+
+*.tmp
+*.temp
+*.bak
+
+# ==============================
+# ML / Dataset Files
+# ==============================
+
+# Ignore datasets
+dataset/
+datasets/
+data/
+
+# Ignore test images
+test_images/
+
+# ==============================
+# Model Training Outputs
+# ==============================
+
+*.h5
+*.hdf5
+*.ckpt
+*.pb
+
+# TensorFlow checkpoints
+checkpoint/
+checkpoints/
+
+# ==============================
+# Python Packaging
+# ==============================
+
+*.egg-info/
+dist/
+build/
+
+# ==============================
+# Local Development
+# ==============================
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
